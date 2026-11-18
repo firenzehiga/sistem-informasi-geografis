@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15 Gempa Terkini (M 5.0+) - BMKG WebGIS</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f8fafc;
+            color: #1e293b;
+            overflow: hidden;
+        }
+
+        /* Header Bar */
+        header {
+            background: #1f4e79;
+            color: #ffffff;
+            padding: 10px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+        .header-title h1 {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+        .header-title p {
+            margin: 3px 0 0 0;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+        .header-actions .btn-refresh {
+            background: #ffffff;
+            color: #1f4e79;
+            border: none;
+            padding: 7px 15px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .header-actions .btn-refresh:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+        /* Container Pembagi Layar */
+        .main-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 58px);
+            overflow: hidden;
+        }
+
+        /* Sidebar Kiri */
+        .sidebar {
+            width: 380px;
+            min-width: 320px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .gempa-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .gempa-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+        .gempa-item:hover {
+            background-color: #f1f5f9;
+        }
+        .gempa-item.active {
+            background-color: #e0f2fe;
+            border-left: 4px solid #0284c7;
+        }
+        .mag-badge {
+            min-width: 48px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 6px;
+            margin-right: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        .gempa-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .gempa-wilayah {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.3;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+        }
+        .gempa-meta {
+            font-size: 11.5px;
+            color: #64748b;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .gempa-meta span {
+            white-space: nowrap;
+        }
+
+        /* Peta Leaflet Kanan */
+        #map {
+            flex: 1;
+            height: 100%;
+            background: #e5e7eb;
+        }
+
+        /* Legenda Kustom Peta (Kanan Bawah) */
+        .legend-card {
+            background: #ffffff;
+            padding: 10px 14px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+            border: 1px solid #cbd5e1;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #1e293b;
+        }
+        .legend-card h4 {
+            margin: 0 0 6px 0;
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 1.5px solid #ffffff;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
+        .legend-note {
+            margin-top: 6px;
+            font-size: 11px;
+            font-style: italic;
+            color: #64748b;
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 4px;
+        }
+
+        /* Styling Popup Gempa */
+        .popup-content h3 {
+            margin: 0 0 6px 0;
+            font-size: 14px;
+            color: #1f4e79;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+        .popup-content table {
+            font-size: 12px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .popup-content td {
+            padding: 2px 4px;
+        }
+        .popup-content td.label {
+            font-weight: 600;
+            color: #475569;
+            width: 80px;
+        }
+
+        /* Pesan Error Jika Offline */
+        .error-banner {
+            padding: 14px;
+            background: #fee2e2;
+            color: #991b1b;
+            font-size: 13px;
+            text-align: center;
+            border-bottom: 1px solid #f87171;
+        }
+    </style>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-title">
+            <h1>15 Gempa Terkini (M 5.0+)</h1>
+            <p>15 gempa M 5.0+ terakhir · Sumber: {{ mode_sumber }}{% if waktu_update %} · Diperbarui: {{ waktu_update }}{% endif %}</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-refresh" onclick="window.location.reload();">Muat ulang</button>
+        </div>
+    </header>
+
+    {% if error_msg %}
+    <div class="error-banner">
+        ⚠️ {{ error_msg }}
+    </div>
+    {% endif %}
+
+    <!-- Kontainer Layar Utama (Sidebar + Peta) -->
+    <div class="main-container">
+        
+        <!-- Sidebar Daftar 15 Gempa -->
+        <aside class="sidebar">
+            <ul class="gempa-list">
+                {% for item in daftar_gempa %}
+                <li class="gempa-item" id="sidebar-item-{{ forloop.counter0 }}" onclick="focusGempa({{ forloop.counter0 }})">
+                    <div class="mag-badge" style="background-color: {{ item.color }};">
+                        {{ item.magnitude }}
+                    </div>
+                    <div class="gempa-info">
+                        <div class="gempa-wilayah">{{ item.wilayah }}</div>
+                        <div class="gempa-meta">
+                            <span>{{ item.no }}. {{ item.tanggal }} {{ item.jam }}</span>
+                            <span>•</span>
+                            <span>{{ item.kedalaman }}</span>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li style="padding: 20px; text-align: center; color: #64748b; font-size: 13px;">
+                    Tidak ada data gempa yang tersedia saat ini.
+                </li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <!-- Kanvas Peta Leaflet -->
+        <main id="map"></main>
+    </div>
+
+    <script>
+        // Data 15 gempa dioper dari Django View dalam format JSON
+        const dataGempa = {{ json_gempa|safe }};
+
+        // 1. Inisialisasi Peta Leaflet berpusat di Indonesia
+        const map = L.map("map", {
+            center: [-2.5, 118.0],
+            zoom: 5,
+            minZoom: 4
+        });
+
+        // 2. Basemap OpenStreetMap (Default)
+        const osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Data gempa: <a href="https://data.bmkg.go.id" target="_blank">BMKG</a>'
+        }).addTo(map);
+
+        // 3. Basemap Citra Satelit Esri
+        const satelit = L.tileLayer(
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            { maxZoom: 19, attribution: "Tiles &copy; Esri | Data gempa: BMKG" }
+        );
+
+        // Kontrol Layer
+        const markersGroup = L.featureGroup();
+        const markerRefs = [];
+
+        // 4. Tambahkan 15 CircleMarker Gempa
+        dataGempa.forEach((item, index) => {
+            if (item.lat && item.lng) {
+                // CircleMarker dengan radius proporsional dan warna kedalaman
+                const marker = L.circleMarker([item.lat, item.lng], {
+                    radius: item.radius,
+                    fillColor: item.color,
+                    color: "#ffffff",
+                    weight: 2,
+                    opacity: 0.95,
+                    fillOpacity: 0.75
+                });
+
+                // Isi Popup Detail
+                const popupHtml = `
+                    <div class="popup-content">
+                        <h3>📍 ${item.wilayah}</h3>
+                        <table>
+                            <tr><td class="label">Magnitudo</td><td>: <b>M ${item.magnitude}</b></td></tr>
+                            <tr><td class="label">Kedalaman</td><td>: ${item.kedalaman} (${item.depth_category})</td></tr>
+                            <tr><td class="label">Waktu Gempa</td><td>: ${item.tanggal} ${item.jam}</td></tr>
+                            <tr><td class="label">Koordinat</td><td>: ${item.lintang}, ${item.bujur}</td></tr>
+                            <tr><td class="label">Status</td><td>: <i>${item.potensi}</i></td></tr>
+                        </table>
+                    </div>
+                `;
+                marker.bindPopup(popupHtml);
+
+                // Interaksi klik marker -> sinkronkan ke sidebar
+                marker.on("click", () => {
+                    highlightSidebarItem(index);
+                });
+
+                markersGroup.addLayer(marker);
+                markerRefs.push(marker);
+            }
+        });
+
+        markersGroup.addTo(map);
+
+        // Fit map agar seluruh 15 titik gempa langsung terlihat
+        if (markerRefs.length > 0) {
+            map.fitBounds(markersGroup.getBounds().pad(0.1));
+        }
+
+        // Layer Switcher Control
+        L.control.layers(
+            { "OpenStreetMap": osm, "Citra Satelit": satelit },
+            { "Marker Gempa": markersGroup },
+            { position: "topright" }
+        ).addTo(map);
+
+        // Kontrol Skala (300 km metric)
+        L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
+
+        // 5. Legenda Kustom Kedalaman (Kanan Bawah)
+        const legend = L.control({ position: "bottomright" });
+        legend.onAdd = function() {
+            const div = L.DomUtil.create("div", "legend-card");
+            div.innerHTML = `
+                <h4>Kedalaman</h4>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #ef4444;"></span>
+                    <span>Dangkal (&lt; 70 km)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #f59e0b;"></span>
+                    <span>Menengah (70–300 km)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #10b981;"></span>
+                    <span>Dalam (&gt; 300 km)</span>
+                </div>
+                <div class="legend-note">
+                    Ukuran lingkaran = magnitudo
+                </div>
+            `;
+            L.DomEvent.disableClickPropagation(div);
+            return div;
+        };
+        legend.addTo(map);
+
+        // 6. Fungsi Navigasi Interaktif saat Item Sidebar Diklik
+        window.focusGempa = function(index) {
+            const item = dataGempa[index];
+            const marker = markerRefs[index];
+            if (item && marker) {
+                map.flyTo([item.lat, item.lng], 8, { duration: 1.2 });
+                marker.openPopup();
+                highlightSidebarItem(index);
+            }
+        };
+
+        function highlightSidebarItem(index) {
+            document.querySelectorAll(".gempa-item").forEach(el => el.classList.remove("active"));
+            const activeEl = document.getElementById(`sidebar-item-${index}`);
+            if (activeEl) {
+                activeEl.classList.add("active");
+                activeEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+        }
+    </script>
+</body>
+</html>

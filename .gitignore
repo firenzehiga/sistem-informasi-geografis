@@ -1,0 +1,32 @@
+# Virtual Environment
+webgis/
+.venv/
+venv/
+env/
+ENV/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Django Local Database
+*.sqlite3
+*.sqlite3-journal
+
+# Logs & Debug
+*.log
+local_settings.py
+db.sqlite3
+
+# IDE / Editor Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+desktop.ini
