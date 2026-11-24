@@ -112,6 +112,13 @@ Akses aplikasi pada peramban melalui URL:
 
 ---
 
+## 🙏 Kredit & Sumber Data
+- **Data Spasial Batas Wilayah (GeoJSON)**: Menggunakan data batas wilayah administratif Indonesia yang disediakan oleh [Yusuf Syaifudin (@yusufsyaifudin/wilayah-indonesia)](https://github.com/yusufsyaifudin/wilayah-indonesia).
+- **Data Gempa Bumi Real-time**: Badan Meteorologi, Klimatologi, dan Geofisika (BMKG) Republik Indonesia.
+- **Data Statistik Pertanian**: Badan Pusat Statistik (BPS) Republik Indonesia.
+
+---
+
 ## 👨‍💻 Pengembang
 - **Nama**: Firenze Higa
 - **Institusi**: Sekolah Tinggi Teknologi Terpadu Nurul Fikri (STT-NF)
