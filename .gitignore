@@ -1,0 +1,16 @@
+# QGIS backup and temporary files
+*~
+*.qgz~
+*.qgs~
+*.tmp
+.~*
+*.lock
+
+# OS and Editor files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.vscode/
+.idea/
