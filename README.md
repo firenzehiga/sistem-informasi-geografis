@@ -88,6 +88,12 @@ Peta disusun menggunakan kaidah kartografi resmi pada Print Layout QGIS (dilengk
 
 ---
 
+## 🙏 Kredit & Sumber Data
+- **Data Spasial Batas Wilayah (GeoJSON)**: Menggunakan data batas wilayah administratif Indonesia yang disediakan oleh [Yusuf Syaifudin (@yusufsyaifudin/wilayah-indonesia)](https://github.com/yusufsyaifudin/wilayah-indonesia).
+- **Data Statistik Sosial-Ekonomi**: Badan Pusat Statistik (BPS) Republik Indonesia tahun 2025.
+
+---
+
 ## 👨‍💻 Pengembang
 - **Nama**: Firenze Higa
 - **Institusi**: Sekolah Tinggi Teknologi Terpadu Nurul Fikri (STT-NF)
