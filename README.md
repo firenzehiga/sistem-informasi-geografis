@@ -15,6 +15,7 @@ Proyek ini dibangun secara modular menggunakan 1 Django Project (`webumkm`) dan 
 | `/welcome/` | `petaindonesia` | Pertemuan 10 (Slide 9) | Endpoint verifikasi awal arsitektur MVT (*Model-View-Template*) dan perutean URL Django. |
 | `/petasatu/` | `petaindonesia` | Pertemuan 10 (Slide 10) | **Peta Dasar Indonesia**: Integrasi Leaflet.js v1.9.4, batas wilayah nusantara (*bounds*), kontrol pengalih layer (*OpenStreetMap* & *Esri Satellite*), marker DKI Jakarta, skala metrik, serta pendeteksi koordinat interaktif saat peta diklik. |
 | `/petadua/` | `petaindonesia` | Pertemuan 10 (Slide 11) | **Praktikum Mandiri 1 (Peta Jabodetabek)**: Pemetaan 5 kota metropolitan (Jakarta, Bogor, Depok, Tangerang, Bekasi) dengan *marker* berlabel permanen (*tooltip*), *featureGroup fitBounds*, dan **panel kontrol UI "Pilih kota"** dengan animasi kamera (*smooth flyTo*). |
+| `/petatiga/` | `petaindonesia` | Pertemuan 11 (Slide 6, 8, 9) | **Peta Geometri Dasar, GeoJSON & Provider Basemap (Depok)**: Gabungan latihan `L.marker`, `L.circle` (radius 500 m), `L.polygon`, *standalone popup*, serta pemuatan objek **GeoJSON Point** (*Kampus A STT-NF*) di area Depok dengan 4 pilihan basemap provider (*OpenStreetMap*, *Esri WorldStreetMap*, *Esri WorldTopoMap*, & *Citra Satelit*). |
 | `/gempabumi/` | `gempabumi` | Pertemuan 10 (Slide 12) | **Praktikum Mandiri 2 (Monitoring Gempa Real-time BMKG)**: Menarik data 15 gempa terkini M 5.0+ dari API resmi BMKG secara *live* (dengan proteksi *offline fallback* otomatis), visualisasi *CircleMarker* berbasis kedalaman (Merah < 70 km, Kuning 70–300 km, Hijau > 300 km), ukuran radius proporsional magnitudo, legenda kartografi, serta bilah sisi (*sidebar*) interaktif dua arah. |
 | `/petaindonesia/provinsi/` | `petaindonesia` | Pertemuan 11 (Slide 11) | **Praktikum Terpandu (Peta 34 Provinsi Indonesia)**: Pemuatan data spasial koordinat `provinces.json` dari direktori statis Django secara asinkron (`fetch`), sebaran 34 marker provinsi di nusantara, lencana kode wilayah ID, serta **kolom pencarian teks real-time** pada sidebar. *(Shortcut: `/provinsi/`)* |
 | `/petaindonesia/petani_jawa/` | `petaindonesia` | Pertemuan 11 (Slide 12-13) | **Praktikum Mandiri (Peta Tematik Choropleth Petani Jawa)**: Integrasi 6 berkas poligon GeoJSON Jawa (`31.geojson` s/d `36.geojson`) dengan data statistik pertanian BPS 2024 (`petani_jawa.json`). Dilengkapi **filter 5 metrik pewarnaan dinamis** (Kepadatan Penduduk, Jumlah Petani, Luas Panen Padi, Populasi, Luas Wilayah), kartu info statistik interaktif (*hover/click*), serta legenda adaptif. *(Shortcut: `/petani_jawa/`)* |
@@ -55,6 +56,7 @@ Project_WebGIS/
     │   ├── templates/petaindonesia/
     │   │   ├── petasatu.html   # Template Peta Indonesia
     │   │   ├── petadua.html    # Template Peta Jabodetabek + Panel Pilih Kota
+    │   │   ├── petatiga.html   # Template Geometri Dasar, GeoJSON & Basemap (Depok)
     │   │   ├── peta_provinsi.html # Template Peta 34 Provinsi + Sidebar Search
     │   │   └── petani_jawa.html   # Template Peta Tematik Choropleth Jawa
     │   ├── views.py
@@ -106,6 +108,7 @@ python manage.py runserver
 Akses aplikasi pada peramban melalui URL:
 - **Peta Dasar Indonesia (Pertemuan 10)**: [http://localhost:8000/petasatu/](http://localhost:8000/petasatu/)
 - **Peta Interaktif Jabodetabek (Pertemuan 10)**: [http://localhost:8000/petadua/](http://localhost:8000/petadua/)
+- **Peta Geometri, GeoJSON STT-NF & Provider Basemap Depok (Pertemuan 11)**: [http://localhost:8000/petatiga/](http://localhost:8000/petatiga/)
 - **Monitoring Gempa Real-time BMKG (Pertemuan 10)**: [http://localhost:8000/gempabumi/](http://localhost:8000/gempabumi/)
 - **Peta 34 Provinsi Indonesia (Pertemuan 11)**: [http://localhost:8000/petaindonesia/provinsi/](http://localhost:8000/petaindonesia/provinsi/)
 - **Peta Tematik Choropleth Petani Jawa (Pertemuan 11)**: [http://localhost:8000/petaindonesia/petani_jawa/](http://localhost:8000/petaindonesia/petani_jawa/)
