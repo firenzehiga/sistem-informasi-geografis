@@ -1,0 +1,1346 @@
+{% load static %}
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal WebGIS SIG · STT Terpadu Nurul Fikri</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <style>
+      :root {
+        --brand-dark: #0f2942;
+        --brand-main: #1f4e79;
+        --brand-accent: #0ea5e9;
+        --emerald: #10b981;
+        --amber: #f59e0b;
+        --bg-page: #f4f7fb;
+        --bg-card: #ffffff;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --border-subtle: #e2e8f0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        background-color: var(--bg-page);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
+
+      /* Navbar */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1100;
+        background: rgba(15, 41, 66, 0.94);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+      }
+
+      .nav-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: -0.2px;
+      }
+
+      .brand svg {
+        flex-shrink: 0;
+      }
+
+      .brand small {
+        display: block;
+        font-size: 11px;
+        font-weight: 500;
+        color: #93c5fd;
+        letter-spacing: 0.2px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .nav-links a {
+        color: #cbd5e1;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 6px 11px;
+        border-radius: 6px;
+        transition: all 0.18s ease;
+      }
+
+      .nav-links a:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .nav-links a.nav-cta {
+        background: rgba(14, 165, 233, 0.2);
+        border: 1px solid rgba(56, 189, 248, 0.45);
+        color: #e0f2fe;
+        font-weight: 600;
+      }
+
+      .nav-links a.nav-cta:hover {
+        background: rgba(14, 165, 233, 0.35);
+      }
+
+      /* Hero Section */
+      .hero {
+        position: relative;
+        background-color: #133452;
+        color: #ffffff;
+        overflow: hidden;
+        border-bottom: 1px solid #cbd5e1;
+      }
+
+      .hero-pattern {
+        position: absolute;
+        inset: 0;
+        opacity: 0.08;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+      }
+
+      .hero-inner {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 52px 24px 58px;
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 36px;
+        align-items: center;
+      }
+
+      .hero-eyebrow {
+        display: inline-block;
+        color: #bae6fd;
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        margin-bottom: 14px;
+      }
+
+      .hero h1 {
+        margin: 0 0 14px 0;
+        font-size: 36px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+      }
+
+      .hero h1 span {
+        color: #38bdf8;
+      }
+
+      .hero-desc {
+        margin: 0 0 24px 0;
+        font-size: 15px;
+        color: #dbeafe;
+        max-width: 560px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-primary {
+        background: #38bdf8;
+        color: #082f49;
+        box-shadow: 0 6px 18px rgba(56, 189, 248, 0.35);
+      }
+
+      .btn-primary:hover {
+        background: #7dd3fc;
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        background: #10b981;
+        color: #022c22;
+        box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
+      }
+
+      .btn-secondary:hover {
+        background: #34d399;
+        transform: translateY(-1px);
+      }
+
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+      }
+
+      .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.18);
+      }
+
+      .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .stat-box {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+
+      .stat-box strong {
+        display: block;
+        font-size: 18px;
+        font-weight: 800;
+        color: #ffffff;
+      }
+
+      .stat-box span {
+        font-size: 11.5px;
+        color: #bfdbfe;
+      }
+
+      /* Hero Interactive Map Preview Window */
+      .map-window {
+        background: #ffffff;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(2, 12, 27, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-primary);
+      }
+
+      .map-window-bar {
+        background: #f1f5f9;
+        padding: 9px 14px;
+        border-bottom: 1px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #475569;
+      }
+
+      .window-dots {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .window-dots i {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .window-dots .r {
+        background: #ef4444;
+      }
+      .window-dots .y {
+        background: #f59e0b;
+      }
+      .window-dots .g {
+        background: #10b981;
+      }
+
+      #heroMap {
+        width: 100%;
+        height: 330px;
+        background: #e2e8f0;
+      }
+
+      .map-window-footer {
+        padding: 8px 14px;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        font-size: 11.5px;
+        color: #475569;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 44px 24px 56px;
+      }
+
+      .section-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .section-header h2 {
+        margin: 0 0 4px 0;
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--brand-dark);
+        letter-spacing: -0.3px;
+      }
+
+      .section-header p {
+        margin: 0;
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+
+      /* Filter & Search Controls */
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 24px;
+        background: #ffffff;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border-subtle);
+        box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+      }
+
+      .filter-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .filter-btn {
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        color: #334155;
+        padding: 7px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.16s ease;
+      }
+
+      .filter-btn:hover {
+        background: #e2e8f0;
+      }
+
+      .filter-btn.active {
+        background: var(--brand-main);
+        border-color: var(--brand-main);
+        color: #ffffff;
+      }
+
+      .search-input {
+        padding: 8px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 13px;
+        min-width: 240px;
+        outline: none;
+        font-family: inherit;
+      }
+
+      .search-input:focus {
+        border-color: var(--brand-accent);
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+      }
+
+      /* Cards Grid */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 14px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          border-color 0.2s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--accent, var(--brand-main));
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.1);
+        border-color: #93c5fd;
+      }
+
+      .card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #eff6ff;
+        color: var(--brand-main);
+        flex-shrink: 0;
+      }
+
+      .badge-modul {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #334155;
+        border: 1px solid #cbd5e1;
+      }
+
+      .badge-p11 {
+        background: #ecfdf5;
+        color: #065f46;
+        border-color: #a7f3d0;
+      }
+
+      .badge-p10 {
+        background: #eff6ff;
+        color: #1e40af;
+        border-color: #bfdbfe;
+      }
+
+      .card h3 {
+        margin: 0 0 8px 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.35;
+      }
+
+      .card p {
+        margin: 0 0 14px 0;
+        font-size: 13.5px;
+        color: var(--text-secondary);
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+
+      .tag {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 5px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+      }
+
+      .card-footer {
+        border-top: 1px solid #f1f5f9;
+        padding-top: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .route-pill {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: #334155;
+        background: #f1f5f9;
+        padding: 4px 8px;
+        border-radius: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 175px;
+      }
+
+      .btn-open {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--brand-main);
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 7px 13px;
+        border-radius: 7px;
+        transition: background 0.16s ease;
+        white-space: nowrap;
+      }
+
+      .btn-open:hover {
+        background: var(--brand-dark);
+      }
+
+      /* Architecture Summary Strip */
+      .arch-section {
+        margin-top: 44px;
+        background: #ffffff;
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 26px;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      }
+
+      .arch-section h2 {
+        margin: 0 0 6px 0;
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--brand-dark);
+      }
+
+      .arch-section > p {
+        margin: 0 0 20px 0;
+        font-size: 13.5px;
+        color: var(--text-secondary);
+      }
+
+      .arch-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .arch-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 16px;
+      }
+
+      .arch-box h4 {
+        margin: 0 0 6px 0;
+        font-size: 14px;
+        color: var(--brand-main);
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .arch-box p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+
+      .empty-state {
+        display: none;
+        text-align: center;
+        padding: 36px;
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px dashed #cbd5e1;
+        color: var(--text-muted);
+        font-size: 14px;
+      }
+
+      /* Footer */
+      footer {
+        background: var(--brand-dark);
+        color: #cbd5e1;
+        padding: 26px 24px;
+        font-size: 13px;
+      }
+
+      .footer-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      footer a {
+        color: #7dd3fc;
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 980px) {
+        .hero-inner {
+          grid-template-columns: 1fr;
+        }
+        .cards-grid,
+        .arch-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .hero h1 {
+          font-size: 28px;
+        }
+        .hero-stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .cards-grid,
+        .arch-grid {
+          grid-template-columns: 1fr;
+        }
+        .nav-links {
+          display: none;
+        }
+        .search-input {
+          width: 100%;
+        }
+      }
+    </style>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+  </head>
+  <body>
+    <!-- Top Navigation -->
+    <nav class="navbar">
+      <div class="nav-inner">
+        <a href="{% url 'landing' %}" class="brand">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#38bdf8"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path
+              d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+            ></path>
+          </svg>
+          <span>
+            WebGIS SIG
+            <small>Project webumkm · STT Terpadu Nurul Fikri</small>
+          </span>
+        </a>
+        <div class="nav-links">
+          <a href="{% url 'petasatu' %}">Indonesia</a>
+          <a href="{% url 'petadua' %}">Jabodetabek</a>
+          <a href="{% url 'petatiga' %}">Kampus STT-NF</a>
+          <a href="{% url 'gempaterkini' %}">Gempa BMKG</a>
+          <a href="{% url 'peta_provinsi' %}">34 Provinsi</a>
+          <a href="{% url 'petani_jawa' %}" class="nav-cta">Choropleth Jawa</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-pattern"></div>
+      <div class="hero-inner">
+        <div>
+          <div class="hero-eyebrow">
+            Sistem Informasi Geografis · Django MVT &amp; Leaflet.js
+          </div>
+          <h1>Portal WebGIS <span>Spasial &amp; Tematik</span> Indonesia</h1>
+          <p class="hero-desc">
+            Kumpulan aplikasi pemetaan interaktif berbasis web hasil praktikum
+            Pertemuan 10 dan 11. Menghubungkan data batas poligon GeoJSON,
+            koordinat provinsi, data sensus pertanian BPS, serta pemantauan
+            gempa bumi real-time BMKG dalam satu portal navigasi.
+          </p>
+          <div class="hero-actions">
+            <a href="{% url 'peta_provinsi' %}" class="btn btn-primary">
+              Jelajahi 34 Provinsi
+            </a>
+            <a href="{% url 'petani_jawa' %}" class="btn btn-secondary">
+              Peta Choropleth Jawa
+            </a>
+            <a href="#modul" class="btn btn-ghost"> Lihat Semua Modul ↓ </a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-box">
+              <strong>7 Rute</strong>
+              <span>Modul Aplikasi Aktif</span>
+            </div>
+            <div class="stat-box">
+              <strong>34 File</strong>
+              <span>Poligon Provinsi GeoJSON</span>
+            </div>
+            <div class="stat-box">
+              <strong>M 5.0+</strong>
+              <span>API Gempa BMKG</span>
+            </div>
+            <div class="stat-box">
+              <strong>5 Metrik</strong>
+              <span>Peta Tematik Jawa</span>
+            </div>
+          </div>
+        </div>
+        <!-- Interactive Live Map Preview -->
+        <div class="map-window">
+          <div class="map-window-bar">
+            <div class="window-dots">
+              <i class="r"></i><i class="y"></i><i class="g"></i>
+              <span style="margin-left: 6px; font-weight: 600"
+                >Pratinjau Titik Modul WebGIS</span
+              >
+            </div>
+            <span id="previewCoord">Klik pin untuk tautan cepat</span>
+          </div>
+          <div id="heroMap"></div>
+          <div class="map-window-footer">
+            <span>Basemap: OpenStreetMap · Leaflet v1.9.4</span>
+            <span>5 Titik Pintas Interaktif</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Directory Cards -->
+    <main class="container" id="modul">
+      <div class="section-header">
+        <div>
+          <h2>Direktori Modul &amp; Peta Interaktif</h2>
+          <p>
+            Pilih salah satu modul di bawah untuk membuka visualisasi peta
+            beserta fitur interaksinya.
+          </p>
+        </div>
+      </div>
+
+      <!-- Filter & Search -->
+      <div class="toolbar">
+        <div class="filter-tabs" id="filterTabs">
+          <button class="filter-btn active" data-filter="all">Semua (7)</button>
+          <button class="filter-btn" data-filter="p11">Pertemuan 11 (3)</button>
+          <button class="filter-btn" data-filter="p10">Pertemuan 10 (4)</button>
+        </div>
+        <input
+          type="search"
+          id="searchModule"
+          class="search-input"
+          placeholder="Cari modul, endpoint, atau fitur..."
+        />
+      </div>
+
+      <div class="cards-grid" id="cardsGrid">
+        <!-- Card 1: Peta 34 Provinsi -->
+        <article
+          class="card"
+          data-category="p11"
+          data-keywords="provinsi geojson 34 indonesia sidebar search flytobounds static"
+          style="--accent: #0ea5e9"
+        >
+          <div>
+            <div class="card-top">
+              <div
+                class="card-icon"
+                style="background: #e0f2fe; color: #0369a1"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polygon
+                    points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"
+                  ></polygon>
+                  <line x1="8" y1="2" x2="8" y2="18"></line>
+                  <line x1="16" y1="6" x2="16" y2="22"></line>
+                </svg>
+              </div>
+              <span class="badge-modul badge-p11"
+                >Pertemuan 11 · Slide 11+</span
+              >
+            </div>
+            <h3>Peta 34 Provinsi &amp; Poligon GeoJSON</h3>
+            <p>
+              Sebaran 34 marker provinsi Indonesia lengkap dengan pencarian
+              sidebar real-time, lazy-load poligon batas wilayah saat diklik,
+              dan auto zoom fokus.
+            </p>
+            <div class="tags">
+              <span class="tag">34 GeoJSON</span>
+              <span class="tag">Lazy Load</span>
+              <span class="tag">flyToBounds</span>
+              <span class="tag">Search Sidebar</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="route-pill" title="/petaindonesia/provinsi/"
+              >/petaindonesia/provinsi/</span
+            >
+            <a href="{% url 'peta_provinsi' %}" class="btn-open">Buka Peta →</a>
+          </div>
+        </article>
+
+        <!-- Card 2: Petani Jawa Choropleth -->
+        <article
+          class="card"
+          data-category="p11"
+          data-keywords="petani jawa choropleth tematik bps kepadatan populasi panen multipolygon"
+          style="--accent: #10b981"
+        >
+          <div>
+            <div class="card-top">
+              <div
+                class="card-icon"
+                style="background: #d1fae5; color: #047857"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                  <path d="M3 9h18M9 21V9"></path>
+                </svg>
+              </div>
+              <span class="badge-modul badge-p11">Pertemuan 11 · Mandiri</span>
+            </div>
+            <h3>Choropleth Petani &amp; Pertanian Jawa</h3>
+            <p>
+              Integrasi 6 poligon provinsi Pulau Jawa dengan data sensus
+              pertanian BPS 2024. Mendukung filter 5 metrik pewarnaan dinamis,
+              info card hover, dan legenda.
+            </p>
+            <div class="tags">
+              <span class="tag">Choropleth</span>
+              <span class="tag">6 Poligon Jawa</span>
+              <span class="tag">BPS 2024</span>
+              <span class="tag">5 Metrik</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="route-pill" title="/petaindonesia/petani_jawa/"
+              >/petaindonesia/petani_jawa/</span
+            >
+            <a href="{% url 'petani_jawa' %}" class="btn-open">Buka Peta →</a>
+          </div>
+        </article>
+
+        <!-- Card 3: Peta Tiga (Kampus A & B STT-NF + Depok) -->
+        <article
+          class="card"
+          data-category="p11"
+          data-keywords="petatiga depok kampus a b sttnf geojson circle marker polygon esri"
+          style="--accent: #6366f1"
+        >
+          <div>
+            <div class="card-top">
+              <div
+                class="card-icon"
+                style="background: #e0e7ff; color: #4338ca"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                  ></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </div>
+              <span class="badge-modul badge-p11"
+                >Pertemuan 11 · Slide 6, 8, 9</span
+              >
+            </div>
+            <h3>Geometri Dasar &amp; Kampus STT-NF</h3>
+            <p>
+              Gabungan marker, circle radius 500m, polygon Kelapa Dua, titik
+              GeoJSON Kampus A &amp; B STT-NF Depok/Lenteng Agung, dan 4 basemap
+              provider.
+            </p>
+            <div class="tags">
+              <span class="tag">GeoJSON Point</span>
+              <span class="tag">Circle 500m</span>
+              <span class="tag">Polygon</span>
+              <span class="tag">Esri Providers</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="route-pill">/petatiga/</span>
+            <a href="{% url 'petatiga' %}" class="btn-open">Buka Peta →</a>
+          </div>
+        </article>
+
+        <!-- Card 4: Monitoring Gempa BMKG -->
+        <article
+          class="card"
+          data-category="p10"
+          data-keywords="gempabumi gempa bmkg realtime api circlemarker magnitudo kedalaman"
+          style="--accent: #ef4444"
+        >
+          <div>
+            <div class="card-top">
+              <div
+                class="card-icon"
+                style="background: #fee2e2; color: #b91c1c"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </div>
+              <span class="badge-modul badge-p10"
+                >Pertemuan 10 · Mandiri 2</span
+              >
+            </div>
+            <h3>Monitoring 15 Gempa Terkini BMKG</h3>
+            <p>
+              Pemantauan gempa M 5.0+ real-time langsung dari API terbuka BMKG
+              beserta offline fallback, radius proporsional magnitudo, dan warna
+              kedalaman.
+            </p>
+            <div class="tags">
+              <span class="tag">BMKG API</span>
+              <span class="tag">CircleMarker</span>
+              <span class="tag">Offline Fallback</span>
+              <span class="tag">Sidebar 2-Arah</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="route-pill">/gempabumi/</span>
+            <a href="{% url 'gempaterkini' %}" class="btn-open">Buka Peta →</a>
+          </div>
+        </article>
+
+        <!-- Card 5: Peta Dua Jabodetabek -->
+        <article
+          class="card"
+          data-category="p10"
+          data-keywords="petadua jabodetabek jakarta bogor depok tangerang bekasi pilih kota flyto"
+          style="--accent: #f59e0b"
+        >
+          <div>
+            <div class="card-top">
+              <div
+                class="card-icon"
+                style="background: #fef3c7; color: #b45309"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path
+                    d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"
+                  ></path>
+                </svg>
+              </div>
+              <span class="badge-modul badge-p10"
+                >Pertemuan 10 · Mandiri 1</span
+              >
+            </div>
+            <h3>Peta Jabodetabek (Panel Pilih Kota)</h3>
+            <p>
+              Visualisasi 5 kota metropolitan (Jakarta, Bogor, Depok, Tangerang,
+              Bekasi) dengan tooltip permanen dan kontrol UI kustom animasi
+              kamera flyTo.
+            </p>
+            <div class="tags">
+              <span class="tag">5 Kota</span>
+              <span class="tag">Permanent Tooltip</span>
+              <span class="tag">flyTo</span>
+              <span class="tag">UI Panel</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="route-pill">/petadua/</span>
+            <a href="{% url 'petadua' %}" class="btn-open">Buka Peta →</a>
+          </div>
+        </article>
+
+        <!-- Card 6: Peta Satu Indonesia -->
+        <article
+          class="card"
+          data-category="p10"
+          data-keywords="petasatu indonesia dasar leaflet osm satelit klik koordinat bounds"
+          style="--accent: #1f4e79"
+        >
+          <div>
+            <div class="card-top">
+              <div
+                class="card-icon"
+                style="background: #dbeafe; color: #1d4ed8"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 8v8M8 12h8"></path>
+                </svg>
+              </div>
+              <span class="badge-modul badge-p10">Pertemuan 10 · Slide 10</span>
+            </div>
+            <h3>Peta Dasar Indonesia &amp; Cek Koordinat</h3>
+            <p>
+              Fondasi awal integrasi Leaflet dengan batas koordinat nusantara,
+              layer switcher OpenStreetMap &amp; Citra Satelit Esri, skala
+              metrik, serta inspeksi titik klik.
+            </p>
+            <div class="tags">
+              <span class="tag">Leaflet Core</span>
+              <span class="tag">MaxBounds</span>
+              <span class="tag">Layer Switcher</span>
+              <span class="tag">Click Lat/Lon</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="route-pill">/petasatu/</span>
+            <a href="{% url 'petasatu' %}" class="btn-open">Buka Peta →</a>
+          </div>
+        </article>
+
+        <!-- Card 7: Welcome MVT -->
+        <article
+          class="card"
+          data-category="p10"
+          data-keywords="welcome mvt django httpresponse awal route test"
+          style="--accent: #64748b"
+        >
+          <div>
+            <div class="card-top">
+              <div
+                class="card-icon"
+                style="background: #f1f5f9; color: #334155"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="16 18 22 12 16 6"></polyline>
+                  <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+              </div>
+              <span class="badge-modul badge-p10">Pertemuan 10 · Slide 9</span>
+            </div>
+            <h3>Endpoint Verifikasi Awal MVT</h3>
+            <p>
+              Endpoint awal pada arsitektur Django Model-View-Template yang
+              mengembalikan HttpResponse sederhana untuk memastikan perutean URL
+              aplikasi berjalan.
+            </p>
+            <div class="tags">
+              <span class="tag">Django MVT</span>
+              <span class="tag">HttpResponse</span>
+              <span class="tag">Routing Dasar</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="route-pill">/welcome/</span>
+            <a href="{% url 'welcome' %}" class="btn-open">Buka Rute →</a>
+          </div>
+        </article>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        Tidak ada modul yang cocok dengan filter atau kata kunci pencarian
+        tersebut.
+      </div>
+
+      <!-- Architecture Section -->
+      <section class="arch-section">
+        <h2>Arsitektur Proyek Django (`webumkm`)</h2>
+        <p>
+          Aplikasi dibangun secara modular menggunakan arsitektur
+          Model-View-Template (MVT) dengan pemisahan aplikasi per domain data
+          spasial:
+        </p>
+        <div class="arch-grid">
+          <div class="arch-box">
+            <h4>petaindonesia/</h4>
+            <p>
+              Mengelola portal beranda (`/`), peta dasar Indonesia
+              (`/petasatu/`), Jabodetabek (`/petadua/`), Kampus STT-NF Depok
+              (`/petatiga/`), 34 Provinsi (`/petaindonesia/provinsi/`), serta
+              Choropleth Jawa (`/petaindonesia/petani_jawa/`).
+            </p>
+          </div>
+          <div class="arch-box">
+            <h4>gempabumi/</h4>
+            <p>
+              Menangani konsumsi data HTTP JSON dari API BMKG (15 gempa M 5.0+
+              terbaru), proteksi cadangan lokal `gempaterkini.json`, serta
+              klasifikasi warna kedalaman sebelum dirender ke template.
+            </p>
+          </div>
+          <div class="arch-box">
+            <h4>static/json/</h4>
+            <p>
+              Direktori aset statis publik berisi `provinces.json`, statistik
+              `petani_jawa.json`, poligon Jawa (`31–36.geojson`), dan 34 berkas
+              GeoJSON batas provinsi Indonesia di subfolder `province/`.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-inner">
+        <div>
+          <strong>Firenze Higa Putra</strong> · Mata Kuliah Sistem Informasi
+          Geografis (Semester 7) · STT Terpadu Nurul Fikri
+        </div>
+        <div>
+          Sumber Data: BMKG · BPS Indonesia ·
+          <a
+            href="https://github.com/yusufsyaifudin/wilayah-indonesia"
+            target="_blank"
+            rel="noopener"
+            >yusufsyaifudin/wilayah-indonesia</a
+          >
+          ·
+          <a
+            href="https://github.com/firenzehiga/sistem-informasi-geografis/tree/webgis"
+            target="_blank"
+            rel="noopener"
+            >GitHub (Branch webgis)</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // 1. Pratinjau Peta Interaktif di Hero Section
+      const heroMap = L.map("heroMap", {
+        center: [-3.2, 115.5],
+        zoom: 4,
+        scrollWheelZoom: false,
+      });
+
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: "&copy; OpenStreetMap",
+      }).addTo(heroMap);
+
+      const titikPortal = [
+        {
+          judul: "Kampus A & B STT-NF",
+          sub: "Geometri Leaflet, GeoJSON & Basemap",
+          coords: [-6.36255, 106.844506],
+          url: "{% url 'petatiga' %}",
+          warna: "#6366f1",
+        },
+        {
+          judul: "Jabodetabek Hub",
+          sub: "Peta 5 Kota + Pilih Kota",
+          coords: [-6.2088, 106.8456],
+          url: "{% url 'petadua' %}",
+          warna: "#f59e0b",
+        },
+        {
+          judul: "Pertanian Pulau Jawa",
+          sub: "Peta Tematik Choropleth BPS 2024",
+          coords: [-7.35, 110.2],
+          url: "{% url 'petani_jawa' %}",
+          warna: "#10b981",
+        },
+        {
+          judul: "Jelajah 34 Provinsi",
+          sub: "Klik untuk fokus poligon se-Indonesia",
+          coords: [-1.5, 116.5],
+          url: "{% url 'peta_provinsi' %}",
+          warna: "#0ea5e9",
+        },
+        {
+          judul: "Monitor Gempa BMKG",
+          sub: "Zona Seismik M 5.0+ Real-time",
+          coords: [-4.5, 128.0],
+          url: "{% url 'gempaterkini' %}",
+          warna: "#ef4444",
+        },
+      ];
+
+      titikPortal.forEach((t) => {
+        const marker = L.circleMarker(t.coords, {
+          radius: 8,
+          fillColor: t.warna,
+          color: "#ffffff",
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9,
+        }).addTo(heroMap);
+
+        marker.bindPopup(
+          `<div style="font-family: Inter, sans-serif; min-width: 170px;">` +
+            `<strong style="color: #0f2942; font-size: 13px;">${t.judul}</strong><br>` +
+            `<span style="color: #475569; font-size: 11.5px;">${t.sub}</span><br>` +
+            `<a href="${t.url}" style="display: inline-block; margin-top: 6px; color: #0284c7; font-weight: 600; font-size: 12px; text-decoration: none;">Buka Modul →</a>` +
+            `</div>`,
+        );
+        marker.bindTooltip(t.judul, { direction: "top" });
+      });
+
+      // 2. Logika Filter Kategori & Pencarian Modul
+      let activeFilter = "all";
+      const cards = Array.from(document.querySelectorAll("#cardsGrid .card"));
+      const emptyState = document.getElementById("emptyState");
+      const searchInput = document.getElementById("searchModule");
+
+      function applyFilters() {
+        const q = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const cat = card.dataset.category;
+          const text = (
+            card.innerText +
+            " " +
+            (card.dataset.keywords || "")
+          ).toLowerCase();
+          const matchCat = activeFilter === "all" || cat === activeFilter;
+          const matchSearch = q === "" || text.includes(q);
+          const show = matchCat && matchSearch;
+
+          card.style.display = show ? "flex" : "none";
+          if (show) visibleCount++;
+        });
+
+        emptyState.style.display = visibleCount === 0 ? "block" : "none";
+      }
+
+      document.querySelectorAll("#filterTabs .filter-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll("#filterTabs .filter-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          activeFilter = btn.dataset.filter;
+          applyFilters();
+        });
+      });
+
+      searchInput.addEventListener("input", applyFilters);
+    </script>
+  </body>
+</html>

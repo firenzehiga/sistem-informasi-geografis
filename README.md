@@ -12,6 +12,7 @@ Proyek ini dibangun secara modular menggunakan 1 Django Project (`webumkm`) dan 
 
 | Endpoint URL | Modul / App | Materi Perkuliahan | Deskripsi Fitur & Fungsionalitas |
 |:---|:---|:---|:---|
+| `/` | `petaindonesia` | Portal Utama WebGIS | **Landing Page Navigasi WebGIS**: Halaman beranda interaktif dengan pratinjau peta Leaflet langsung (4+ titik pintas), filter materi Pertemuan 10/11, pencarian modul *real-time*, ringkasan arsitektur Django MVT, dan tautan navigasi dua arah ke seluruh peta. |
 | `/welcome/` | `petaindonesia` | Pertemuan 10 (Slide 9) | Endpoint verifikasi awal arsitektur MVT (*Model-View-Template*) dan perutean URL Django. |
 | `/petasatu/` | `petaindonesia` | Pertemuan 10 (Slide 10) | **Peta Dasar Indonesia**: Integrasi Leaflet.js v1.9.4, batas wilayah nusantara (*bounds*), kontrol pengalih layer (*OpenStreetMap* & *Esri Satellite*), marker DKI Jakarta, skala metrik, serta pendeteksi koordinat interaktif saat peta diklik. |
 | `/petadua/` | `petaindonesia` | Pertemuan 10 (Slide 11) | **Praktikum Mandiri 1 (Peta Jabodetabek)**: Pemetaan 5 kota metropolitan (Jakarta, Bogor, Depok, Tangerang, Bekasi) dengan *marker* berlabel permanen (*tooltip*), *featureGroup fitBounds*, dan **panel kontrol UI "Pilih kota"** dengan animasi kamera (*smooth flyTo*). |
@@ -55,6 +56,7 @@ Project_WebGIS/
     │
     ├── petaindonesia/          # App 1: Pemetaan Wilayah, Provinsi & Tematik Jawa
     │   ├── templates/petaindonesia/
+    │   │   ├── landing.html    # Portal Landing Page & Hub Navigasi WebGIS
     │   │   ├── petasatu.html   # Template Peta Indonesia
     │   │   ├── petadua.html    # Template Peta Jabodetabek + Panel Pilih Kota
     │   │   ├── petatiga.html   # Template Geometri Dasar, GeoJSON & Basemap (Depok)
@@ -107,6 +109,7 @@ python manage.py runserver
 ```
 
 Akses aplikasi pada peramban melalui URL:
+- **Portal Landing Page Utama**: [http://localhost:8000/](http://localhost:8000/)
 - **Peta Dasar Indonesia (Pertemuan 10)**: [http://localhost:8000/petasatu/](http://localhost:8000/petasatu/)
 - **Peta Interaktif Jabodetabek (Pertemuan 10)**: [http://localhost:8000/petadua/](http://localhost:8000/petadua/)
 - **Peta Geometri, GeoJSON STT-NF & Provider Basemap Depok (Pertemuan 11)**: [http://localhost:8000/petatiga/](http://localhost:8000/petatiga/)

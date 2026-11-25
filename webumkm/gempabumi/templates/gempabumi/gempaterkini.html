@@ -227,7 +227,8 @@
             <h1>15 Gempa Terkini (M 5.0+)</h1>
             <p>15 gempa M 5.0+ terakhir · Sumber: {{ mode_sumber }}{% if waktu_update %} · Diperbarui: {{ waktu_update }}{% endif %}</p>
         </div>
-        <div class="header-actions">
+        <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+            <a href="{% url 'landing' %}" class="btn-refresh" style="text-decoration: none; background: rgba(255,255,255,0.16); color: #ffffff; border: 1px solid rgba(255,255,255,0.3);">← Beranda</a>
             <button class="btn-refresh" onclick="window.location.reload();">Muat ulang</button>
         </div>
     </header>

@@ -129,7 +129,20 @@
           Pertemuan 11: Slide 6, 8 &amp; 9)</small
         >
       </div>
-      <button class="btn-reset" id="btnReset">Fokus Area STT-NF</button>
+      <div style="display: flex; align-items: center; gap: 8px">
+        <a
+          href="{% url 'landing' %}"
+          class="btn-reset"
+          style="
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+          "
+          >&larr; Beranda</a
+        >
+        <button class="btn-reset" id="btnReset">Fokus Area STT-NF</button>
+      </div>
     </header>
 
     <div id="map"></div>
