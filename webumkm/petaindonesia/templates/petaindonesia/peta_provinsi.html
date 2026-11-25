@@ -10,22 +10,76 @@
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; font-family: system-ui, sans-serif; }
-        header { height: 52px; padding: 8px 16px; background: #1f4e79; color: #fff;
-                 display: flex; align-items: center; }
+        header {
+            height: 56px;
+            padding: 8px 16px;
+            background: #1f4e79;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
         header h1 { margin: 0; font-size: 18px; }
-        header small { display: block; font-size: 12px; opacity: .85; }
+        header small { display: block; font-size: 12px; opacity: .88; }
 
-        .wadah { display: flex; height: calc(100vh - 52px); }
-        #panel { width: 280px; display: flex; flex-direction: column;
-                 border-right: 1px solid #ddd; background: #fafafa; }
-        #cari { margin: 10px; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-reset {
+            padding: 6px 12px;
+            border: 0;
+            border-radius: 5px;
+            background: #ffffff;
+            color: #1f4e79;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s ease;
+        }
+        .btn-reset:hover { background: #e3eef9; }
+
+        .wadah { display: flex; height: calc(100vh - 56px); }
+        #panel {
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #ddd;
+            background: #fafafa;
+        }
+        #cari {
+            margin: 10px;
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
         #daftar { flex: 1; overflow-y: auto; }
         #map { flex: 1; }
 
-        .item { padding: 7px 12px; border-bottom: 1px solid #e5e5e5; cursor: pointer; font-size: 13px; }
+        .item {
+            padding: 7px 12px;
+            border-bottom: 1px solid #e5e5e5;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background .15s ease;
+        }
         .item:hover { background: #e3eef9; }
-        .item .kode { display: inline-block; min-width: 28px; margin-right: 6px; padding: 1px 4px;
-                      border-radius: 3px; background: #1f4e79; color: #fff; font-size: 11px; text-align: center; }
+        .item.active {
+            background: #1f4e79;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .item .kode {
+            display: inline-block;
+            min-width: 28px;
+            margin-right: 6px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: #1f4e79;
+            color: #fff;
+            font-size: 11px;
+            text-align: center;
+        }
+        .item.active .kode {
+            background: #ffffff;
+            color: #1f4e79;
+        }
         .pesan { padding: 12px; font-size: 13px; }
         .pesan.error { color: #b00020; }
 
@@ -43,6 +97,7 @@
             <h1>Peta Provinsi Indonesia</h1>
             <small id="status">Memuat data provinsi...</small>
         </div>
+        <button class="btn-reset" id="btnReset">Reset Peta Indonesia</button>
     </header>
 
     <div class="wadah">
@@ -54,8 +109,9 @@
     </div>
 
     <script>
-        // Alamat file JSON dibuat oleh Django dari folder static
+        // Alamat file JSON & GeoJSON dibuat oleh Django dari folder static
         const URL_PROVINSI = "{% static 'json/provinces.json' %}";
+        const BASE_URL_GEOJSON = "{% static 'json/province/' %}";
 
         // 1. Peta dengan fokus wilayah Indonesia
         const map = L.map("map", { minZoom: 4 }).fitBounds([[-11.5, 94.5], [6.5, 141.5]]);
@@ -71,12 +127,21 @@
         );
 
         const lapisanProvinsi = L.featureGroup().addTo(map);
+        const lapisanPoligonAktif = L.featureGroup().addTo(map);
 
         L.control.layers(
             { "OpenStreetMap": osm, "Citra Satelit": satelit },
-            { "Provinsi": lapisanProvinsi }
+            {
+                "Marker 34 Provinsi": lapisanProvinsi,
+                "Poligon Provinsi Aktif": lapisanPoligonAktif
+            }
         ).addTo(map);
         L.control.scale({ imperial: false }).addTo(map);
+
+        // Cache GeoJSON di memori agar klik ulang instan & cegah race condition klik cepat
+        const cacheGeoJson = {};
+        let activeRequestId = 0;
+        let totalProvinsi = 0;
 
         // 2. Pengaman teks sebelum dimasukkan ke HTML
         function aman(teks) {
@@ -85,7 +150,106 @@
             return div.innerHTML;
         }
 
-        // 3. Muat provinces.json lalu buat marker dan daftar
+        // 3. Tandai item aktif di sidebar
+        function tandaiSidebarAktif(activeItem) {
+            document.querySelectorAll("#daftar .item.active").forEach((el) => {
+                el.classList.remove("active");
+            });
+            if (activeItem) {
+                activeItem.classList.add("active");
+                activeItem.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+        }
+
+        // 4. Reset tampilan kembali ke seluruh Indonesia & bersihkan poligon aktif
+        function resetPetaIndonesia() {
+            activeRequestId++;
+            lapisanPoligonAktif.clearLayers();
+            tandaiSidebarAktif(null);
+            map.closePopup();
+            if (lapisanProvinsi.getLayers().length > 0) {
+                map.flyToBounds(lapisanProvinsi.getBounds(), { padding: [30, 30], duration: 0.7 });
+            } else {
+                map.fitBounds([[-11.5, 94.5], [6.5, 141.5]]);
+            }
+            document.getElementById("status").textContent =
+                `${totalProvinsi} provinsi dimuat — klik marker atau daftar untuk fokus poligon`;
+        }
+
+        document.getElementById("btnReset").addEventListener("click", resetPetaIndonesia);
+
+        // 5. Fokus ke provinsi yang diklik + muat poligon GeoJSON-nya
+        async function pilihProvinsi(p, marker, itemEl) {
+            const reqId = ++activeRequestId;
+            const status = document.getElementById("status");
+            const lat = Number(p.latitude);
+            const lon = Number(p.longitude);
+
+            tandaiSidebarAktif(itemEl);
+            lapisanPoligonAktif.clearLayers();
+            status.textContent = `Memuat poligon ${p.name}...`;
+
+            try {
+                let geoData = cacheGeoJson[p.id];
+                if (!geoData) {
+                    const urlGeo = `${BASE_URL_GEOJSON}${encodeURIComponent(p.id)}.geojson`;
+                    const resGeo = await fetch(urlGeo);
+                    if (!resGeo.ok) throw new Error(`HTTP ${resGeo.status}`);
+                    geoData = await resGeo.json();
+                    cacheGeoJson[p.id] = geoData;
+                }
+
+                // Abaikan hasil jika user sudah telanjur mengklik provinsi lain
+                if (reqId !== activeRequestId) return;
+
+                const polygonLayer = L.geoJSON(geoData, {
+                    style: {
+                        fillColor: "#2563eb",
+                        weight: 2.5,
+                        opacity: 1,
+                        color: "#1e3a8a",
+                        fillOpacity: 0.35
+                    },
+                    onEachFeature: function (feature, layer) {
+                        layer.bindPopup(
+                            `<b>${aman(p.name)}</b><br>` +
+                            `Kode wilayah: ${aman(p.id)}<br>` +
+                            `<small>Batas wilayah GeoJSON</small>`
+                        );
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle({
+                                    weight: 3.5,
+                                    color: "#0f172a",
+                                    fillOpacity: 0.55
+                                });
+                            },
+                            mouseout: function (e) {
+                                polygonLayer.resetStyle(e.target);
+                            }
+                        });
+                    }
+                }).addTo(lapisanPoligonAktif);
+
+                const bounds = polygonLayer.getBounds();
+                if (bounds.isValid()) {
+                    map.flyToBounds(bounds, { padding: [30, 30], maxZoom: 9, duration: 0.8 });
+                } else {
+                    map.flyTo([lat, lon], 7);
+                }
+
+                marker.openPopup();
+                status.textContent = `Fokus poligon: ${p.name} (Kode ${p.id})`;
+            } catch (err) {
+                if (reqId !== activeRequestId) return;
+                console.error(err);
+                map.flyTo([lat, lon], 7);
+                marker.openPopup();
+                status.textContent = `Fokus: ${p.name} (poligon gagal dimuat: ${err.message})`;
+            }
+        }
+
+        // 6. Muat provinces.json lalu buat marker dan daftar
         async function muatProvinsi() {
             const status = document.getElementById("status");
             const daftar = document.getElementById("daftar");
@@ -95,6 +259,7 @@
                 if (!respon.ok) throw new Error(`HTTP ${respon.status}`);
                 const dataProvinsi = await respon.json();   // array of {id, name, latitude, longitude}
 
+                totalProvinsi = dataProvinsi.length;
                 daftar.innerHTML = "";
 
                 dataProvinsi.forEach((p) => {
@@ -113,15 +278,17 @@
                     item.className = "item";
                     item.dataset.nama = p.name.toLowerCase();
                     item.innerHTML = `<span class="kode">${aman(p.id)}</span>${aman(p.name)}`;
-                    item.onclick = () => {
-                        map.flyTo([lat, lon], 7);
-                        marker.openPopup();
-                    };
+
+                    // Baik klik item sidebar maupun klik marker akan fokus + munculkan poligon
+                    item.onclick = () => pilihProvinsi(p, marker, item);
+                    marker.on("click", () => pilihProvinsi(p, marker, item));
+
                     daftar.appendChild(item);
                 });
 
                 map.fitBounds(lapisanProvinsi.getBounds(), { padding: [30, 30] });
-                status.textContent = `${dataProvinsi.length} provinsi dimuat dari provinces.json`;
+                status.textContent =
+                    `${totalProvinsi} provinsi dimuat — klik marker atau daftar untuk fokus poligon`;
             } catch (err) {
                 console.error(err);
                 status.textContent = "Gagal memuat data";
@@ -132,7 +299,7 @@
             }
         }
 
-        // 4. Pencarian provinsi di daftar
+        // 7. Pencarian provinsi di daftar
         document.getElementById("cari").addEventListener("input", (e) => {
             const kata = e.target.value.toLowerCase();
             document.querySelectorAll("#daftar .item").forEach((item) => {
